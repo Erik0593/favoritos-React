@@ -22,8 +22,7 @@ function App() {
   
   const favoritos = event => {
     let indexFav = event.target.dataset.listIndex
-    let favoritos = listFavoritos
-    setListFavoritos([...favoritos, listData])
+    setListFavoritos([...listFavoritos, toDoList[indexFav]])
   }
 
   const deleteToDo = event => {
