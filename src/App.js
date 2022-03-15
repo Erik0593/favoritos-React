@@ -4,35 +4,28 @@ import { Container, Row, Col, Card, Button, CardTitle, CardText } from 'reactstr
 
 function App() {
   //Declaracion de Estados
-  //estado de la lista de tareas
   const [toDoList, setToDoList] = useState([])
-  //estado de la lista de favoritos
   const [listFavoritos, setListFavoritos] = useState([])
-  //estado de la información donde la vamos a guardar
   const [listData, setListData] = useState({})
 
 
   //declaracion de Handlers
-  //aqui obtenemos los datos para guardarlos en un objeto
   const getData = event => {
     let property = event.target.name
     let value = event.target.value
     setListData({...listData, [property]: value})
   }
 
-  //aqui guardamos y actualizamos la lista de objetos
   const saveData = () => {
     setToDoList([...toDoList,listData])
   }
-
-  //aqui guardamos dependiendo el index lo que quieremos guardar en favoritos
+  
   const favoritos = event => {
     let indexFav = event.target.dataset.listIndex
     let favoritos = listFavoritos
     setListFavoritos([...favoritos, listData])
   }
 
-  //borramos el objeto por medio del indice y actualizamos para que se renderice de nuevo
   const deleteToDo = event => {
     let listIndex = event.target.dataset.listIndex
     let allList = toDoList
@@ -49,7 +42,7 @@ function App() {
   }
 
 
-  //creando el componente
+  
   return (
     <div className="App">
       <Container>
@@ -107,7 +100,7 @@ function App() {
           </Col>
           <Col xs="12" md="4">
 
-            <form action="" className="mt-3 p-3 bg-dark text-white border rounded">
+            <form action="" className="mt-5 p-3 bg-dark text-white border rounded">
               <div className="form-group mb-3">
                 <label htmlFor="title">Titulo</label>
                 <input className='form-control' type="text" name="title" onChange={getData}/>
