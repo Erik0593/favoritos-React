@@ -1,118 +1,91 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.scss';
-import { Container, Row, Col, Card, Button, CardTitle, CardText } from 'reactstrap'
+import CarCard from './Components/CarCard';
+import api from './lib/api'
 
 function App() {
-  //Declaracion de Estados
-  const [toDoList, setToDoList] = useState([])
-  const [listFavoritos, setListFavoritos] = useState([])
-  const [listData, setListData] = useState({})
 
+  const [coches, setCoches] = useState({})
+  const [reFetch, setReFetch] = useState(false)
+  const [carData, setCarData] = useState({})
+  useEffect( async () => {
+    let data = await api.getAllCars()
+    console.log(data)
+    setCoches(data)
+    // api.getAllCars()
+    /*console.log('Componente renderizado')
+    let data = fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json').then(response => {
+      response.json().then(json => {
+        setCoches(json)
+      })
+    })*/
+  }, [])
 
-  //declaracion de Handlers
-  const getData = event => {
-    let property = event.target.name
+  const carFormHandler = event => {
     let value = event.target.value
-    setListData({...listData, [property]: value})
+    let property = event.target.name
+    setCarData({...carData, [property]:value})
   }
 
-  const saveData = () => {
-    setToDoList([...toDoList,listData])
-  }
-  
-  const favoritos = event => {
-    let indexFav = event.target.dataset.listIndex
-    setListFavoritos([...listFavoritos, toDoList[indexFav]])
+  const saveCar = () => {
+    console.log(carData)
+    fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json',{
+      method:"POST",
+      headers:{
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(carData)
+    }).then(response => {
+      response.json().then(json => {
+        console.log(json)
+        let data = fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json').then(response => {
+      response.json().then(json => {
+        setCoches(json)
+      })
+    })
+      })
+    })
+
   }
 
-  const deleteToDo = event => {
-    let listIndex = event.target.dataset.listIndex
-    let allList = toDoList
-    allList.splice(listIndex,1)
-    console.log(allList)
-    setToDoList([...allList])
-  }
-  const deleteFav = event => {
-    let listIndex = event.target.dataset.listIndex
-    let allFav = listFavoritos
-    allFav.splice(listIndex,1)
-    console.log(allFav)
-    setListFavoritos([...allFav])
-  }
-
-
-  
   return (
     <div className="App">
-      <Container>
-        <Row>
-          <Col xs="12" md="4">
-          <h1>To Do List</h1>
-            {
-              toDoList.map((item, index) => {
-                const {title, text} = item
-            return(
-              <Card
-              key={index}
-              body
-              inverse
-              style={{
-                backgroundColor: '#333',
-                borderColor: '#333'
-              }}
-              className="mt-3"
-            >
-
-              <CardTitle tag="h5">{title}</CardTitle>
-              <CardText>{text}</CardText>
-              <Button data-list-index={index} onClick={deleteToDo}>Delete</Button>
-              <Button className='mt-3' data-list-index={index} onClick={favoritos}>Favoritos</Button>
-              </Card>
-              )
-              })
-            }
-          </Col>
-          <Col xs="12" md="4">
-          <h1>Favoritos</h1>
-            {
-              listFavoritos.map((item, index) => {
-                const {title, text} = item
-            return(
-              <Card
-              key={index}
-              body
-              inverse
-              style={{
-                backgroundColor: '#333',
-                borderColor: '#333'
-              }}
-              className="mt-3"
-            >
-
-              <CardTitle tag="h5">{title}</CardTitle>
-              <CardText>{text}</CardText>
-              <Button data-list-index={index} onClick={deleteFav}>Delete</Button>
-              </Card>
-              )
-              })
-            }
-          </Col>
-          <Col xs="12" md="4">
-
-            <form action="" className="mt-5 p-3 bg-dark text-white border rounded">
-              <div className="form-group mb-3">
-                <label htmlFor="title">Titulo</label>
-                <input className='form-control' type="text" name="title" onChange={getData}/>
-              </div>
-              <div className="form-group mb-3">
-                <label htmlFor="text">Texto</label>
-                <input className='form-control' type="text" name="text" onChange={getData}/>
-              </div>
-              <div className="btn btn-success" onClick={saveData}>Guardar Tarea</div>
-            </form>
-          </Col>
-        </Row>
-      </Container>
+      <div className="container">
+        <div className="row">
+          <div className="col-12 col-md-6">
+            <div className="row py-3">
+              {Object.keys(coches).map(coche => {
+                const { año, modelo, marca, picture } = coches[coche]
+                return (
+                  <CarCard carData={coches[coche]} />
+                )
+              })}
+            </div>
+          </div>
+        </div>
+        <div className="col-12 col-md-6">
+          <form action="" className='border rounded shadow p-3'>
+          <div className="form-group"><label htmlFor="">Imagen</label>
+            <input type="text" name="picture" className="form-control"  onChange={carFormHandler}/>
+            </div>
+            <div className="form-group"><label htmlFor="">Modelo</label>
+            <input type="text" name="modelo" className="form-control"  onChange={carFormHandler}/>
+            </div>
+            <div className="form-group"><label htmlFor="">Marca</label>
+            <input type="text" name="marca" className="form-control"  onChange={carFormHandler}/>
+            </div>
+            <div className="form-group"><label htmlFor="">Año</label>
+            <select class="form-select" aria-label="Selecciona un año" name="año" onChange={carFormHandler}>
+              <option>Año</option>
+              <option value="2017">2017</option>
+              <option value="2018">2018</option>
+              <option value="2019">2019</option>
+            </select>
+            </div>
+            <button type="button" className="btn btn-dark mt-3" onClick={saveCar}>Guardar Coche</button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
