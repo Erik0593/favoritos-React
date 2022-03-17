@@ -6,7 +6,6 @@ import api from './lib/api'
 function App() {
 
   const [coches, setCoches] = useState({})
-  const [reFetch, setReFetch] = useState(false)
   const [carData, setCarData] = useState({})
   useEffect( async () => {
     let data = await api.getAllCars()
