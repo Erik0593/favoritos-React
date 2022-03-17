@@ -1,90 +1,213 @@
 import { useState, useEffect } from 'react';
 import './App.scss';
-import CarCard from './Components/CarCard';
-import api from './lib/api'
+// import api from '../src/lib/api'
+import {
+  Card, CardBody, CardTitle, CardSubtitle, CardText, Button, CardImg, Form, FormGroup, Input, Label,
+  FormText, Container, Col, Row
+} from 'reactstrap'
 
 function App() {
+  const BASE_URL = 'https://crud-vacantes-default-rtdb.firebaseio.com'
+  const [listJob, setListJob] = useState({})
+  const [listApplied, setListApplied] = useState({})
+  const [jobData, setJobData] = useState({})
+  
 
-  const [coches, setCoches] = useState({})
-  const [carData, setCarData] = useState({})
-  useEffect( async () => {
-    let data = await api.getAllCars()
-    console.log(data)
-    setCoches(data)
-    // api.getAllCars()
-    /*console.log('Componente renderizado')
-    let data = fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json').then(response => {
-      response.json().then(json => {
-        setCoches(json)
+
+  useEffect(() => {
+     fetch(`${BASE_URL}/vacante.json`).then(response => {
+      return response.json()
+    })
+      .then((data) => {
+        setListJob(data)
       })
-    })*/
   }, [])
 
-  const carFormHandler = event => {
-    let value = event.target.value
-    let property = event.target.name
-    setCarData({...carData, [property]:value})
+  
+
+  const buttonApply = event => {
+    setListApplied = [{ ...listApplied }, event.target.value]
   }
 
-  const saveCar = () => {
-    console.log(carData)
-    fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json',{
-      method:"POST",
-      headers:{
+  const formHandler = event =>{
+    let property = event.target.name
+    let value = event.target.value
+    setJobData({...jobData, [property]:value})
+    console.log(jobData)
+  }
+
+  const buttonCreate = async () => {
+    setListJob({...listJob}, jobData)
+    let response = await fetch(`${BASE_URL}/vacante.json`, {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/json'
       },
-      body:JSON.stringify(carData)
-    }).then(response => {
-      response.json().then(json => {
-        console.log(json)
-        let data = fetch('https://react-crud-erik-15g-default-rtdb.firebaseio.com/coches.json').then(response => {
-      response.json().then(json => {
-        setCoches(json)
-      })
+      body: JSON.stringify(jobData)
     })
+    let response2 = await response.json()
+    console.log(response2)
+    if(response2.name){
+      fetch(`${BASE_URL}/vacante.json`).then(response => {
+        return response.json()
       })
-    })
-
+        .then((data) => {
+          setListJob(data)
+        })
+    }
+    return response2
   }
+
+  const buttonDelete = async (event) => {
+    let jobId = event.target.dataset-jobId
+    let response = await fetch(`${BASE_URL}/vacante/${jobId}.json`, {
+      method: 'DELETE'
+    })
+  }
+
+
+
 
   return (
     <div className="App">
-      <div className="container">
-        <div className="row">
-          <div className="col-12 col-md-6">
-            <div className="row py-3">
-              {Object.keys(coches).map(coche => {
-                const { año, modelo, marca, picture } = coches[coche]
-                return (
-                  <CarCard carData={coches[coche]} />
-                )
-              })}
-            </div>
-          </div>
-        </div>
-        <div className="col-12 col-md-6">
-          <form action="" className='border rounded shadow p-3'>
-          <div className="form-group"><label htmlFor="">Imagen</label>
-            <input type="text" name="picture" className="form-control"  onChange={carFormHandler}/>
-            </div>
-            <div className="form-group"><label htmlFor="">Modelo</label>
-            <input type="text" name="modelo" className="form-control"  onChange={carFormHandler}/>
-            </div>
-            <div className="form-group"><label htmlFor="">Marca</label>
-            <input type="text" name="marca" className="form-control"  onChange={carFormHandler}/>
-            </div>
-            <div className="form-group"><label htmlFor="">Año</label>
-            <select class="form-select" aria-label="Selecciona un año" name="año" onChange={carFormHandler}>
-              <option>Año</option>
-              <option value="2017">2017</option>
-              <option value="2018">2018</option>
-              <option value="2019">2019</option>
-            </select>
-            </div>
-            <button type="button" className="btn btn-dark mt-3" onClick={saveCar}>Guardar Coche</button>
-          </form>
-        </div>
+
+      <div>
+        {
+          Object.keys(listJob).map(job => {
+            const { img, vacante, tipo, tags } = listJob[job]
+            return (
+              <Card key={job}
+                jobData={{...listJob[job], jobId:job}}
+              >
+                <CardBody>
+                  <CardImg
+                    alt="Card image cap"
+                    src={img}
+                  />
+                  <CardTitle tag="h5">
+                    {vacante}
+                  </CardTitle>
+                  <CardSubtitle
+                    className="mb-2 text-muted"
+                    tag="h6"
+                  >
+                    {tipo}
+                  </CardSubtitle>
+                  <CardText>
+                    {tags}
+                  </CardText>
+                  <Button className='btn btn-success' onClick={buttonApply}>
+                    Aplicar
+                  </Button>
+                  <Button className='btn btn-danger' onClick={buttonDelete} data-job-Id={jobId}>
+                    Eliminar
+                  </Button>
+
+                </CardBody>
+              </Card>
+            )
+          })
+        }
       </div>
+
+      <div>
+        <Container>
+          <Form >
+            <FormGroup>
+              <Label for="exampleText"> Nombre de la Vacante</Label>
+              <Input
+                id="exampleText"
+                name="vacante"
+                type="text"
+                onChange={formHandler}
+              />
+            </FormGroup>
+
+
+            <FormGroup>
+              <Label for="exampleSelect">
+                Select
+              </Label>
+              <Input
+                id="exampleSelect"
+                name="tipo"
+                type="select"
+                onChange={formHandler}
+              >
+                <option>
+                  Full-time
+                </option>
+                <option>
+                  Part-time
+                </option>
+                <option>
+                  Remote
+                </option>
+              </Input>
+            </FormGroup>
+
+
+            <FormGroup>
+              <Label for="exampleFile">
+                Imagen Empresa
+              </Label>
+              <Input
+                id="exampleFile"
+                name="img"
+                type="text"
+                onChange={formHandler}
+              />
+            </FormGroup>
+
+            <FormGroup tag="fieldset">
+              <legend>
+                Skills
+              </legend>
+              <FormGroup check>
+                <Input
+                  name="javaScript"
+                  type="checkbox"
+                  onChange={formHandler}
+                />
+                {' '}
+                <Label check>
+                  JavaScript
+                </Label>
+              </FormGroup>
+              <FormGroup check>
+                <Input
+                  name="CSS"
+                  type="checkbox"
+                  onChange={formHandler}
+                />
+                {' '}
+                <Label check>
+                  CSS
+                </Label>
+              </FormGroup>
+              <FormGroup
+                check
+                disabled
+              >
+                <Input
+                  name="React"
+                  type="checkbox"
+                  onChange={formHandler}
+                />
+                {' '}
+                <Label check>
+                  React
+                </Label>
+              </FormGroup>
+            </FormGroup>
+            <Button onClick={buttonCreate}>
+              Crear Vacante
+            </Button>
+          </Form>
+        </Container>
+
+      </div>
+
     </div>
   );
 }
