@@ -23,13 +23,8 @@ function App() {
       })
   }, [])
 
-
-
   const buttonApply = event => {
-    let property = event.target.name
-    let value = event.target.value
-    setListApplied = { ...listApplied , [property]:value}
-    console.log(property, value)
+    setListApplied = [{ ...listApplied }, event.target.value]
   }
 
   const formHandler = event => {
@@ -62,8 +57,7 @@ function App() {
   }
 
   const buttonDelete = async (event) => {
-    let jobId = event.target.dataset.jobId
-    console.log(jobId)
+    let jobId = event.target.dataset - jobId
     let response = await fetch(`${BASE_URL}/vacante/${jobId}.json`, {
       method: 'DELETE'
     })
@@ -78,15 +72,16 @@ function App() {
       <div>
         <Container>
           <Row>
-            <Col md="6">
-            <div>
+            <Col md="6 mt-3" >
+            <div >
               {
                 Object.keys(listJob).map(job => {
                   const { img, vacante, tipo, tags } = listJob[job]
                   return (
                     <Card key={job}
-                      jobData={{ ...listJob[job] }}
-                    className="card text-white bg-dark mb-3">
+                      jobData={{ ...listJob[job], jobId:job }}
+                      className="card text-white bg-dark mb-3"
+                    >
                       <CardBody>
                         <CardImg
                           alt="Card image cap"
@@ -118,11 +113,8 @@ function App() {
               }
             </div>
             </Col>
-          </Row>
-
-          <Row>
-            <Col md="6">
-            <Form>
+            <Col md="6 mt-3">
+            <Form className='form-control card text-white bg-dark mb-3'>
               <FormGroup>
                 <Label for="exampleText"> Nombre de la Vacante</Label>
                 <Input
