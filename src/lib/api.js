@@ -17,5 +17,16 @@ export default {
             body: JSON.stringify(carData)
         })
         return await response.json()
+    },
+    saveEditedCar: async (carId, editedCar) => {
+        let response = await  fetch(`${BASE_URL}/coches/${carId}.json`,
+        {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(editedCar)
+        })
+        return await response.json()
     }
 }
