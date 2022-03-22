@@ -28,5 +28,12 @@ export default {
             body: JSON.stringify(editedCar)
         })
         return await response.json()
+    },
+    deleteCar: async (carId) => {
+        let response = await  fetch(`${BASE_URL}/coches/${carId}.json`,
+        {
+            method: 'DELETE'
+        })
+        return await response.json()
     }
 }

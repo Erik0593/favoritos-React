@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Route, Link, Routes } from 'react-router-dom';
 import './App.scss';
 import CarCard from './Components/CarCard';
-
+import CarForm from './Components/CarForm'
+import Login from './Components/Pages/Login'
 import Catalog from './Components/Pages/Catalog';
 import Create from './Components/Pages/Create';
 import CarDetail from './Components/Pages/CarDetail';
@@ -12,7 +13,7 @@ import api from './lib/api'
 function App() {
 
   //coleccion completa de coches
-  
+  const [coches, setCoches] = useState({})
   //nuevo coche a guardar
   const [carData, setCarData] = useState({})
   //coche que estamos editando
@@ -23,7 +24,7 @@ function App() {
   const [editedCar, setEditedCar] = useState ({})
   
   
-/*
+
   //aqui estamos creando el handler del objeto neuvo que vamos a crear 
   //estamos seteando a setCarData que vale, todo lo que tenga carData y la nueva porpiedad y valor de cada input
   const carFormHandler = event => {
@@ -60,19 +61,26 @@ function App() {
 
   }
 
+  const carDeleted = async (event) => {
+    let carId = event.target.dataset.carId
+    let response = await api.deleteCar(carId)
+    console.log(response)
+  }
+  
+
   const logIn = () => {
     alert('Sesión iniciada con éxito')
+    localStorage.setItem('userToken', '123456poiuytrxc')
     setIsLogged(!isLogged)
   }
 
   const logOut = () => {
     alert('Cerrando sesión')
+    localStorage.clear('userToken')
     setIsLogged(!isLogged)
   }
-*/
   return (
     <div className="App">
-
 <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
   <div className="container-fluid">
     <a className="navbar-brand" href="#">Navbar</a>
@@ -97,13 +105,13 @@ function App() {
 </nav>
 
     <Routes>
-      <Route path='/' element={<Catalog />} />
-      <Route path='create' element={<Create />} />
-      <Route path='car-detail/:id' element={<CarDetail />} />
+      <Route path='/' element={ isLogged ? <Catalog /> : <Login />} />
+      <Route path='create' element={ isLogged ? <Create /> : <Login /> } />
+      <Route path='car-detail/:id' element={ isLogged ? <CarDetail /> : <Login />} />
     </Routes>
 
 
-{/*       
+       
       <button classNameName="btn btn-primary" onClick={isLogged ? logOut : logIn}>{isLogged ? 'Log Out' : 'Log In'}</button>
       <div className="container">
         <div className="row">
@@ -139,7 +147,7 @@ function App() {
             }
           </div>
           </div>
-      </div> */}
+      </div> 
 
 
     </div>
